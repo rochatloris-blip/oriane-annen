@@ -1,0 +1,313 @@
+---
+import '../styles/global.css';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+
+export interface Props {
+  title: string;
+  description?: string;
+}
+
+const { title, description } = Astro.props;
+---
+
+<!doctype html>
+<html lang="fr-CH">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>{title}</title>
+    <meta name="description" content={description || 'Oriane Annen — Relations Publiques & Communication'} />
+    <meta name="theme-color" content="#090a0c" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lenis/1.1.13/lenis.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  </head>
+  <body class="font-sans font-light tracking-normal text-base antialiased">
+    <canvas id="bgGL"></canvas>
+    <div class="bg-fx"></div>
+    <div class="grid-bg"></div>
+
+    <Header />
+
+    <main>
+      <slot />
+    </main>
+
+    <Footer />
+
+    <script>
+      const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      // Lenis Smooth Scrolling
+      let lenis;
+      if (window.Lenis && !prefersReduced) {
+        lenis = new Lenis({
+          duration: 1.1,
+          easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+          smoothWheel: true,
+        });
+        function raf(t) { lenis.raf(t); requestAnimationFrame(raf); }
+        requestAnimationFrame(raf);
+      }
+
+      // Header Scroll Effect
+      const header = document.getElementById('header');
+      window.addEventListener('scroll', () => {
+        if (window.scrollY > 40) {
+          header.classList.add('scrolled');
+        } else {
+          header.classList.remove('scrolled');
+        }
+      });
+
+      // FAQ Accordion
+      document.querySelectorAll('.faq-item').forEach((item) => {
+        const btn = item.querySelector('button');
+        const ans = item.querySelector('.faq-ans');
+        const icon = item.querySelector('.faq-icon');
+
+        btn.addEventListener('click', () => {
+          const isOpen = item.classList.contains('active');
+
+          document.querySelectorAll('.faq-item').forEach((otherItem) => {
+            otherItem.classList.remove('active');
+            otherItem.querySelector('.faq-ans').style.maxHeight = null;
+            otherItem.querySelector('.faq-icon').style.transform = 'rotate(0deg)';
+          });
+
+          if (!isOpen) {
+            item.classList.add('active');
+            ans.style.maxHeight = ans.scrollHeight + 'px';
+            icon.style.transform = 'rotate(180deg)';
+          }
+        });
+      });
+
+      // GSAP Scroll Reveals
+      if (window.gsap && window.ScrollTrigger && !prefersReduced) {
+        gsap.registerPlugin(ScrollTrigger);
+
+        if (lenis) {
+          lenis.on('scroll', ScrollTrigger.update);
+          gsap.ticker.add((time) => lenis.raf(time * 1000));
+          gsap.ticker.lagSmoothing(0);
+        }
+
+        gsap.utils.toArray('.reveal').forEach((el) => {
+          if (el.closest('#accueil')) return;
+
+          gsap.fromTo(
+            el,
+            { y: 30, opacity: 0 },
+            {
+              y: 0,
+              opacity: 1,
+              duration: 0.8,
+              ease: 'power2.out',
+              scrollTrigger: {
+                trigger: el,
+                start: 'top 85%',
+              },
+            }
+          );
+        });
+
+        // Hero Animation
+        const heroTl = gsap.timeline({ defaults: { ease: 'power2.out' } });
+        const heroReveals = document.querySelectorAll('#accueil .reveal');
+        if (heroReveals.length > 0) {
+          heroTl
+            .fromTo(heroReveals[0], { y: 20, opacity: 0 }, { y: 0, opacity: 1, duration: 0.6, delay: 0.2 })
+            .fromTo(heroReveals[1], { y: 30, opacity: 0 }, { y: 0, opacity: 1, duration: 0.8 }, '-=0.4')
+            .fromTo(heroReveals[2], { y: 20, opacity: 0 }, { y: 0, opacity: 1, duration: 0.8 }, '-=0.6')
+            .fromTo(heroReveals[3], { y: 20, opacity: 0 }, { y: 0, opacity: 1, duration: 0.6 }, '-=0.6');
+        }
+      } else {
+        document.querySelectorAll('.reveal').forEach((e) => {
+          e.style.opacity = 1;
+          e.style.transform = 'none';
+        });
+      }
+
+      // Three.js WebGL Background
+      (function () {
+        const canvas = document.getElementById('bgGL');
+        if (!canvas || !window.THREE || prefersReduced) {
+          if (canvas) canvas.style.display = 'none';
+          return;
+        }
+
+        const CFG = {
+          color: '#8b5cf6',
+          colorTwo: '#a78bfa',
+          speed: 0.6,
+          ringCount: 5,
+          attenuation: 12,
+          lineThickness: 1.5,
+          baseRadius: 0.4,
+          radiusStep: 0.15,
+          scaleRate: 0.08,
+          opacity: 0.8,
+          blur: 0,
+          noiseAmount: 0.05,
+          rotation: 0,
+          ringGap: 1.5,
+          fadeIn: 0.7,
+          fadeOut: 0.5,
+          followMouse: true,
+          mouseInfluence: 0.1,
+          parallax: 0.03,
+        };
+
+        const vert = 'void main(){gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}';
+        const frag = `
+          precision highp float;
+          uniform float uTime,uAttenuation,uLineThickness;
+          uniform float uBaseRadius,uRadiusStep,uScaleRate;
+          uniform float uOpacity,uNoiseAmount,uRotation,uRingGap;
+          uniform float uFadeIn,uFadeOut,uMouseInfluence,uParallax;
+          uniform vec2 uResolution,uMouse;
+          uniform vec3 uColor,uColorTwo;
+          uniform int uRingCount;
+          const float HP=1.5707963;
+          const float CYCLE=3.45;
+          float fade(float t){return t<uFadeIn?smoothstep(0.0,uFadeIn,t):1.0-smoothstep(uFadeOut,CYCLE-0.2,t);}
+          float ring(vec2 p,float ri,float cut,float t0,float px){
+            float t=mod(uTime+t0,CYCLE);
+            float r=ri+t/CYCLE*uScaleRate;
+            float d=abs(length(p)-r);
+            float a=atan(abs(p.y),abs(p.x))/HP;
+            float th=max(1.0-a,0.5)*px*uLineThickness;
+            float h=(1.0-smoothstep(th,th*1.5,d))+1.0;
+            d+=pow(cut*a,3.0)*r;
+            return h*exp(-uAttenuation*d)*fade(t);
+          }
+          void main(){
+            float px=1.0/min(uResolution.x,uResolution.y);
+            vec2 p=(gl_FragCoord.xy-0.5*uResolution.xy)*px;
+            float cr=cos(uRotation),sr=sin(uRotation);
+            p=mat2(cr,-sr,sr,cr)*p;
+            p-=uMouse*uMouseInfluence;
+            vec3 c=vec3(0.0);
+            float rcf=max(float(uRingCount)-1.0,1.0);
+            for(int i=0;i<10;i++){
+              if(i>=uRingCount)break;
+              float fi=float(i);
+              vec2 pr=p-fi*uParallax*uMouse;
+              vec3 rc=mix(uColor,uColorTwo,fi/rcf);
+              c=mix(c,rc,vec3(ring(pr,uBaseRadius+fi*uRadiusStep,pow(uRingGap,fi),i==0?0.0:2.95*fi,px)));
+            }
+            float n=fract(sin(dot(gl_FragCoord.xy+uTime*100.0,vec2(12.9898,78.233)))*43758.5453);
+            c+=(n-0.5)*uNoiseAmount;
+            gl_FragColor=vec4(c,max(c.r,max(c.g,c.b))*uOpacity);
+          }
+        `;
+
+        let renderer;
+        try {
+          renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+        } catch (e) {
+          canvas.style.display = 'none';
+          return;
+        }
+        renderer.setClearColor(0x000000, 0);
+
+        const scene = new THREE.Scene();
+        const camera = new THREE.OrthographicCamera(-0.5, 0.5, 0.5, -0.5, 0.1, 10);
+        camera.position.z = 1;
+
+        const uniforms = {
+          uTime: { value: 0 },
+          uAttenuation: { value: CFG.attenuation },
+          uResolution: { value: new THREE.Vector2() },
+          uColor: { value: new THREE.Color(CFG.color) },
+          uColorTwo: { value: new THREE.Color(CFG.colorTwo) },
+          uLineThickness: { value: CFG.lineThickness },
+          uBaseRadius: { value: CFG.baseRadius },
+          uRadiusStep: { value: CFG.radiusStep },
+          uScaleRate: { value: CFG.scaleRate },
+          uRingCount: { value: CFG.ringCount },
+          uOpacity: { value: CFG.opacity },
+          uNoiseAmount: { value: CFG.noiseAmount },
+          uRotation: { value: (CFG.rotation * Math.PI) / 180 },
+          uRingGap: { value: CFG.ringGap },
+          uFadeIn: { value: CFG.fadeIn },
+          uFadeOut: { value: CFG.fadeOut },
+          uMouse: { value: new THREE.Vector2() },
+          uMouseInfluence: { value: CFG.followMouse ? CFG.mouseInfluence : 0 },
+          uParallax: { value: CFG.parallax },
+        };
+
+        const material = new THREE.ShaderMaterial({
+          vertexShader: vert,
+          fragmentShader: frag,
+          uniforms,
+          transparent: true,
+        });
+        scene.add(new THREE.Mesh(new THREE.PlaneGeometry(1, 1), material));
+
+        function resize() {
+          const w = window.innerWidth;
+          const h = window.innerHeight;
+          const dpr = Math.min(window.devicePixelRatio || 1, 2);
+          renderer.setPixelRatio(dpr);
+          renderer.setSize(w, h);
+          uniforms.uResolution.value.set(w * dpr, h * dpr);
+        }
+        resize();
+        window.addEventListener('resize', resize);
+
+        const mouse = [0, 0];
+        const smooth = [0, 0];
+        window.addEventListener(
+          'pointermove',
+          (e) => {
+            mouse[0] = e.clientX / window.innerWidth - 0.5;
+            mouse[1] = -(e.clientY / window.innerHeight - 0.5);
+          },
+          { passive: true }
+        );
+
+        let visible = true;
+        const heroH = () => window.innerHeight * 1.5;
+        const checkVis = () => {
+          visible = ((lenis ? lenis.scroll : window.scrollY) || window.scrollY) < heroH();
+        };
+        window.addEventListener('scroll', checkVis, { passive: true });
+        if (lenis) lenis.on('scroll', checkVis);
+
+        (function loop(t) {
+          requestAnimationFrame(loop);
+          if (!visible) return;
+          smooth[0] += (mouse[0] - smooth[0]) * 0.05;
+          smooth[1] += (mouse[1] - smooth[1]) * 0.05;
+          uniforms.uTime.value = t * 0.001 * CFG.speed;
+          uniforms.uMouse.value.set(smooth[0], smooth[1]);
+          renderer.render(scene, camera);
+        })(0);
+
+        // Fade out GL canvas on scroll
+        if (window.gsap && window.ScrollTrigger) {
+          gsap.to('#bgGL', {
+            opacity: 0,
+            ease: 'none',
+            scrollTrigger: {
+              trigger: '#accueil',
+              start: 'center top',
+              end: 'bottom top',
+              scrub: true,
+            },
+          });
+        }
+      })();
+    </script>
+  </body>
+</html>

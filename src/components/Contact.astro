@@ -1,0 +1,126 @@
+<section id="contact" class="py-24 px-6 border-t border-white/5 bg-[#0c0e12]/50">
+  <div class="max-w-5xl mx-auto">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-16">
+      <!-- Form -->
+      <div class="reveal">
+        <h2 class="text-3xl font-semibold tracking-tight text-white mb-2">
+          Prêt à faire parler de vous ?
+        </h2>
+        <p class="text-gray-400 text-sm mb-10">
+          Remplissez ce formulaire, je vous réponds dans les plus brefs délais avec le sourire.
+        </p>
+
+        <form class="space-y-6">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label class="text-[10px] uppercase tracking-widest text-gray-500 font-medium block mb-1">
+                Prénom *
+              </label>
+              <input type="text" required class="input-line w-full text-white text-sm py-2 placeholder-gray-600" placeholder="Jean" />
+            </div>
+            <div>
+              <label class="text-[10px] uppercase tracking-widest text-gray-500 font-medium block mb-1">
+                Nom *
+              </label>
+              <input type="text" required class="input-line w-full text-white text-sm py-2 placeholder-gray-600" placeholder="Dupont" />
+            </div>
+          </div>
+
+          <div>
+            <label class="text-[10px] uppercase tracking-widest text-gray-500 font-medium block mb-1">
+              Entreprise *
+            </label>
+            <input type="text" required class="input-line w-full text-white text-sm py-2 placeholder-gray-600" placeholder="Votre société" />
+          </div>
+
+          <div>
+            <label class="text-[10px] uppercase tracking-widest text-gray-500 font-medium block mb-1">
+              E-mail *
+            </label>
+            <input type="email" required class="input-line w-full text-white text-sm py-2 placeholder-gray-600" placeholder="jean@exemple.ch" />
+          </div>
+
+          <div>
+            <label class="text-[10px] uppercase tracking-widest text-gray-500 font-medium block mb-1">
+              Votre demande *
+            </label>
+            <textarea required rows="4" class="input-line w-full text-white text-sm py-2 placeholder-gray-600 resize-none" placeholder="Décrivez brièvement votre projet ou besoin..."></textarea>
+          </div>
+
+          <div class="text-[10px] text-gray-500 leading-tight">
+            Ce site est protégé par reCAPTCHA et la Politique de confidentialité et les Conditions
+            d'utilisation de Google s'appliquent.
+          </div>
+
+          <button
+            type="submit"
+            class="btn-gradient w-full text-white px-6 py-3.5 rounded-xl text-sm font-medium flex items-center justify-center gap-2"
+          >
+            Envoyer le message
+            <iconify-icon icon="solar:plain-2-linear" class="text-lg"></iconify-icon>
+          </button>
+        </form>
+      </div>
+
+      <!-- Info Sidebar -->
+      <div class="reveal lg:pl-12 lg:border-l border-white/5 flex flex-col justify-center">
+        <div class="glass-card rounded-2xl p-8">
+          <h3 class="text-lg font-medium text-white tracking-tight mb-8">Coordonnées</h3>
+
+          <div class="space-y-6">
+            <div class="flex items-start gap-4">
+              <div
+                class="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-violet-400 shrink-0"
+              >
+                <iconify-icon icon="solar:map-point-linear" class="text-xl"></iconify-icon>
+              </div>
+              <div>
+                <p class="text-xs text-gray-500 uppercase tracking-widest font-medium mb-1">Adresse</p>
+                <p class="text-sm text-gray-300">
+                  Oriane Annen<br />
+                  Vy d'Echallens 1M<br />
+                  1004 Lausanne
+                </p>
+              </div>
+            </div>
+
+            <div class="flex items-start gap-4">
+              <div
+                class="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-violet-400 shrink-0"
+              >
+                <iconify-icon icon="solar:letter-linear" class="text-xl"></iconify-icon>
+              </div>
+              <div>
+                <p class="text-xs text-gray-500 uppercase tracking-widest font-medium mb-1">E-mail</p>
+                <a
+                  href="mailto:oriane.annen03@gmail.com"
+                  class="text-sm text-gray-300 hover:text-white transition-colors"
+                >
+                  oriane.annen03@gmail.com
+                </a>
+              </div>
+            </div>
+
+            <div class="flex items-start gap-4">
+              <div
+                class="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-violet-400 shrink-0"
+              >
+                <iconify-icon icon="solar:hashtag-linear" class="text-xl"></iconify-icon>
+              </div>
+              <div>
+                <p class="text-xs text-gray-500 uppercase tracking-widest font-medium mb-1">Réseaux</p>
+                <a
+                  href="#"
+                  class="text-sm text-gray-300 hover:text-white transition-colors flex items-center gap-1"
+                >
+                  LinkedIn
+                  <iconify-icon icon="solar:arrow-right-up-linear"></iconify-icon>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
