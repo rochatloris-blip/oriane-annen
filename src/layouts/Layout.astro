@@ -177,7 +177,7 @@ const { title, description } = Astro.props;
             total = clamp(total, 0.0, 1.0);
 
             float alpha = total * uOpacity;
-            vec3 color = uColor * alpha * 0.8;
+            vec3 color = uColor;
 
             gl_FragColor = vec4(color, alpha);
           }
