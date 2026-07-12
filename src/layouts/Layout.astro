@@ -59,26 +59,43 @@ const { title, description } = Astro.props;
       }
 
       // Anchor links with Lenis
-      document.querySelectorAll('a[href^="#"]').forEach((link) => {
+      document.querySelectorAll('a[href^="#"], a[href^="/#"], a[href="/"]').forEach((link) => {
         link.addEventListener('click', (e) => {
           const href = link.getAttribute('href');
-          if (href === '#') {
-            e.preventDefault();
-            if (lenis) {
-              lenis.scrollTo(0);
-            } else {
-              window.scrollTo({ top: 0, behavior: 'smooth' });
+          const isHome = location.pathname === '/' || location.pathname === '';
+
+          if (href === '/') {
+            if (isHome) {
+              e.preventDefault();
+              if (lenis) lenis.scrollTo(0);
+              else window.scrollTo({ top: 0, behavior: 'smooth' });
             }
             return;
           }
+
+          if (href.startsWith('/#')) {
+            if (isHome) {
+              e.preventDefault();
+              const id = href.slice(2);
+              const target = document.getElementById(id);
+              if (target) {
+                if (lenis) lenis.scrollTo(target);
+                else target.scrollIntoView({ behavior: 'smooth' });
+              }
+            }
+            return;
+          }
+
           e.preventDefault();
+          if (href === '#') {
+            if (lenis) lenis.scrollTo(0);
+            else window.scrollTo({ top: 0, behavior: 'smooth' });
+            return;
+          }
           const target = document.querySelector(href);
           if (target) {
-            if (lenis) {
-              lenis.scrollTo(target);
-            } else {
-              target.scrollIntoView({ behavior: 'smooth' });
-            }
+            if (lenis) lenis.scrollTo(target);
+            else target.scrollIntoView({ behavior: 'smooth' });
           }
         });
       });
