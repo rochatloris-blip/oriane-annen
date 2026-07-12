@@ -149,41 +149,36 @@ const { title, description } = Astro.props;
           precision highp float;
           uniform float uTime;
           uniform vec2 uResolution, uMouse;
-          uniform vec3 uColor, uColorTwo;
+          uniform vec3 uColor;
           uniform float uOpacity;
 
-          float ring(vec2 p, float radius, float width, float speed) {
+          float ring(vec2 p, float radius) {
             float d = length(p);
-            float t = mod(uTime * speed, 6.28);
-            float r = radius + t * 0.03;
+            float t = mod(uTime * 0.8, 6.28);
+            float r = radius + t * 0.02;
             float dist = abs(d - r);
-            float val = exp(-dist * dist * width);
-            return val;
+            return exp(-dist * dist * 20.0);
           }
 
           void main() {
             vec2 p = (gl_FragCoord.xy - 0.5 * uResolution.xy) / min(uResolution.x, uResolution.y);
+            vec2 mp = uMouse * 0.2;
 
-            vec2 mp = uMouse * 0.3;
-
-            vec3 c = vec3(0.0);
-            float totalAlpha = 0.0;
-
-            for (int i = 0; i < 6; i++) {
+            float total = 0.0;
+            for (int i = 0; i < 3; i++) {
               float fi = float(i);
-              vec2 offset = p + mp * (1.0 + fi * 0.15);
-              float r = ring(offset, 0.15 + fi * 0.18, 10.0 + fi * 5.0, 0.8 + fi * 0.3);
-              vec3 col = mix(uColor, uColorTwo, fi / 5.0);
-              c += col * r * (1.0 - fi * 0.08);
-              totalAlpha += r * (1.0 - fi * 0.08);
+              vec2 offset = p + mp * (1.0 + fi * 0.2);
+              total += ring(offset, 0.2 + fi * 0.2) * (0.5 - fi * 0.12);
             }
 
-            float glow = exp(-length(p - mp) * 3.0) * 0.3;
-            c += mix(uColor, uColorTwo, 0.5) * glow;
+            float vignette = 1.0 - smoothstep(0.1, 0.8, length(p));
+            total *= vignette;
+            total = clamp(total, 0.0, 1.0);
 
-            float alpha = max(c.r, max(c.g, c.b)) * uOpacity;
+            vec3 color = uColor * total * 0.35;
+            float alpha = total * uOpacity;
 
-            gl_FragColor = vec4(c, alpha);
+            gl_FragColor = vec4(color, alpha);
           }
         `;
 
@@ -205,8 +200,7 @@ const { title, description } = Astro.props;
           uTime: { value: 0 },
           uResolution: { value: new THREE.Vector2() },
           uColor: { value: new THREE.Color('#8b5cf6') },
-          uColorTwo: { value: new THREE.Color('#c084fc') },
-          uOpacity: { value: 0.6 },
+          uOpacity: { value: 0.15 },
           uMouse: { value: new THREE.Vector2() },
         };
 
