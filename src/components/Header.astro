@@ -27,15 +27,15 @@
       <iconify-icon icon="solar:close-circle-linear" class="text-2xl hidden close-icon"></iconify-icon>
     </button>
   </div>
-
-  <div id="mobile-menu" class="fixed inset-0 bg-bg/95 backdrop-blur-xl z-40 flex flex-col items-center justify-center gap-8 md:hidden opacity-0 pointer-events-none transition-all duration-500">
-    <a href="#accueil" class="text-2xl text-gray-300 hover:text-white transition-colors font-medium">Accueil</a>
-    <a href="#services" class="text-2xl text-gray-300 hover:text-white transition-colors font-medium">Services</a>
-    <a href="#parcours" class="text-2xl text-gray-300 hover:text-white transition-colors font-medium">Mon Parcours</a>
-    <a href="#faq" class="text-2xl text-gray-300 hover:text-white transition-colors font-medium">FAQ</a>
-    <a href="#contact" class="mt-4 btn-gradient text-white px-8 py-3 rounded-xl text-sm font-medium">Me contacter</a>
-  </div>
 </header>
+
+<div id="mobile-menu" class="fixed top-0 left-0 w-full h-full z-40 bg-[#090a0c]/98 backdrop-blur-2xl flex flex-col items-center justify-center gap-10 md:hidden opacity-0 pointer-events-none transition-all duration-500">
+  <a href="#accueil" class="text-3xl text-gray-300 hover:text-white transition-colors font-medium" data-menu-link>Accueil</a>
+  <a href="#services" class="text-3xl text-gray-300 hover:text-white transition-colors font-medium" data-menu-link>Services</a>
+  <a href="#parcours" class="text-3xl text-gray-300 hover:text-white transition-colors font-medium" data-menu-link>Mon Parcours</a>
+  <a href="#faq" class="text-3xl text-gray-300 hover:text-white transition-colors font-medium" data-menu-link>FAQ</a>
+  <a href="#contact" class="mt-4 btn-gradient text-white px-10 py-4 rounded-xl text-base font-medium" data-menu-link>Me contacter</a>
+</div>
 
 <script>
   const menuBtn = document.getElementById('menu-btn');
@@ -60,11 +60,20 @@
     }
   }
 
-  menuBtn?.addEventListener('click', toggleMenu);
+  menuBtn?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    toggleMenu();
+  });
 
-  mobileMenu?.querySelectorAll('a').forEach(link => {
+  mobileMenu?.querySelectorAll('[data-menu-link]').forEach(link => {
     link.addEventListener('click', () => {
       if (mobileMenu.classList.contains('open')) toggleMenu();
     });
+  });
+
+  document.addEventListener('click', (e) => {
+    if (mobileMenu.classList.contains('open') && !mobileMenu.contains(e.target) && !menuBtn?.contains(e.target)) {
+      toggleMenu();
+    }
   });
 </script>
