@@ -152,123 +152,139 @@ const { title, description } = Astro.props;
         });
       }
 
-      // Three.js Ring Background
-      (function () {
-        const canvas = document.getElementById('bgGL');
-        if (!canvas) { console.warn('bgGL canvas not found'); return; }
-        if (!window.THREE) { console.warn('THREE not loaded'); canvas.style.display = 'none'; return; }
-        if (prefersReduced) { canvas.style.display = 'none'; return; }
+      // Background WebGL (Original Aura Builder rings)
+      (function(){
+          const canvas = document.getElementById('bgGL');
+          if(!canvas || !window.THREE || prefersReduced) { if(canvas) canvas.style.display='none'; return; }
 
-        const vert = 'void main(){gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}';
-        const frag = `
-          precision highp float;
-          uniform float uTime;
-          uniform vec2 uResolution, uMouse;
-          uniform vec3 uColor;
-          uniform float uOpacity;
+          const CFG = {
+              color: '#8b5cf6',
+              colorTwo: '#a78bfa',
+              speed: 0.6, ringCount: 5, attenuation: 12, lineThickness: 1.5,
+              baseRadius: 0.4, radiusStep: 0.15, scaleRate: 0.08, opacity: 0.8,
+              blur: 0, noiseAmount: 0.05, rotation: 0, ringGap: 1.5,
+              fadeIn: 0.7, fadeOut: 0.5, followMouse: true, mouseInfluence: 0.1, parallax: 0.03
+          };
 
-          void main() {
-            vec2 p = (gl_FragCoord.xy - 0.5 * uResolution.xy) / min(uResolution.x, uResolution.y);
-            vec2 mp = uMouse * 0.18;
+          const vert = 'void main(){gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}';
+          const frag = `
+              precision highp float;
+              uniform float uTime,uAttenuation,uLineThickness;
+              uniform float uBaseRadius,uRadiusStep,uScaleRate;
+              uniform float uOpacity,uNoiseAmount,uRotation,uRingGap;
+              uniform float uFadeIn,uFadeOut,uMouseInfluence,uParallax;
+              uniform vec2 uResolution,uMouse;
+              uniform vec3 uColor,uColorTwo;
+              uniform int uRingCount;
+              const float HP=1.5707963;
+              const float CYCLE=3.45;
+              float fade(float t){return t<uFadeIn?smoothstep(0.0,uFadeIn,t):1.0-smoothstep(uFadeOut,CYCLE-0.2,t);}
+              float ring(vec2 p,float ri,float cut,float t0,float px){
+                  float t=mod(uTime+t0,CYCLE);
+                  float r=ri+t/CYCLE*uScaleRate;
+                  float d=abs(length(p)-r);
+                  float a=atan(abs(p.y),abs(p.x))/HP;
+                  float th=max(1.0-a,0.5)*px*uLineThickness;
+                  float h=(1.0-smoothstep(th,th*1.5,d))+1.0;
+                  d+=pow(cut*a,3.0)*r;
+                  return h*exp(-uAttenuation*d)*fade(t);
+              }
+              void main(){
+                  float px=1.0/min(uResolution.x,uResolution.y);
+                  vec2 p=(gl_FragCoord.xy-0.5*uResolution.xy)*px;
+                  float cr=cos(uRotation),sr=sin(uRotation);
+                  p=mat2(cr,-sr,sr,cr)*p;
+                  p-=uMouse*uMouseInfluence;
+                  vec3 c=vec3(0.0);
+                  float rcf=max(float(uRingCount)-1.0,1.0);
+                  for(int i=0;i<10;i++){
+                      if(i>=uRingCount)break;
+                      float fi=float(i);
+                      vec2 pr=p-fi*uParallax*uMouse;
+                      vec3 rc=mix(uColor,uColorTwo,fi/rcf);
+                      c=mix(c,rc,vec3(ring(pr,uBaseRadius+fi*uRadiusStep,pow(uRingGap,fi),i==0?0.0:2.95*fi,px)));
+                  }
+                  float n=fract(sin(dot(gl_FragCoord.xy+uTime*100.0,vec2(12.9898,78.233)))*43758.5453);
+                  c+=(n-0.5)*uNoiseAmount;
+                  gl_FragColor=vec4(c,max(c.r,max(c.g,c.b))*uOpacity);
+              }
+          `;
 
-            vec2 cp = p - mp;
-            float dist = length(cp);
+          let renderer;
+          try{ renderer = new THREE.WebGLRenderer({canvas, alpha:true, antialias:true}); }
+          catch(e){ canvas.style.display='none'; return; }
+          renderer.setClearColor(0x000000, 0);
 
-            float total = 0.0;
-            float baseR = 0.22;
+          const scene = new THREE.Scene();
+          const camera = new THREE.OrthographicCamera(-0.5, 0.5, 0.5, -0.5, 0.1, 10);
+          camera.position.z = 1;
 
-            for (int i = 0; i < 3; i++) {
-              float fi = float(i);
-              float R = baseR + fi * 0.17;
-              float d = abs(dist - R);
-              float ring = exp(-d * d * 250.0);
-              total += ring * (1.0 - fi * 0.15);
-            }
+          const uniforms = {
+              uTime: {value:0}, uAttenuation: {value:CFG.attenuation},
+              uResolution: {value:new THREE.Vector2()},
+              uColor: {value:new THREE.Color(CFG.color)},
+              uColorTwo: {value:new THREE.Color(CFG.colorTwo)},
+              uLineThickness: {value:CFG.lineThickness},
+              uBaseRadius: {value:CFG.baseRadius},
+              uRadiusStep: {value:CFG.radiusStep},
+              uScaleRate: {value:CFG.scaleRate},
+              uRingCount: {value:CFG.ringCount},
+              uOpacity: {value:CFG.opacity},
+              uNoiseAmount: {value:CFG.noiseAmount},
+              uRotation: {value:CFG.rotation*Math.PI/180},
+              uRingGap: {value:CFG.ringGap},
+              uFadeIn: {value:CFG.fadeIn},
+              uFadeOut: {value:CFG.fadeOut},
+              uMouse: {value:new THREE.Vector2()},
+              uMouseInfluence: {value:CFG.followMouse?CFG.mouseInfluence:0},
+              uParallax: {value:CFG.parallax}
+          };
+          const material = new THREE.ShaderMaterial({vertexShader:vert, fragmentShader:frag, uniforms, transparent:true});
+          scene.add(new THREE.Mesh(new THREE.PlaneGeometry(1,1), material));
 
-            float vignette = 1.0 - smoothstep(0.6, 1.1, dist);
-            total *= vignette;
-            total = clamp(total, 0.0, 1.0);
-
-            float alpha = total * uOpacity;
-            gl_FragColor = vec4(uColor, alpha);
+          function resize(){
+              const w = window.innerWidth, h = window.innerHeight;
+              const dpr = Math.min(window.devicePixelRatio||1, 2);
+              renderer.setPixelRatio(dpr);
+              renderer.setSize(w, h);
+              uniforms.uResolution.value.set(w*dpr, h*dpr);
           }
-        `;
+          resize();
+          window.addEventListener('resize', resize);
 
-        let renderer;
-        try {
-          renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true, premultipliedAlpha: false });
-        } catch (e) {
-          console.warn('WebGLRenderer error:', e);
-          canvas.style.display = 'none';
-          return;
-        }
-        renderer.setClearColor(0x000000, 0);
+          const mouse = [0,0], smooth = [0,0];
+          window.addEventListener('pointermove', e => {
+              mouse[0] = e.clientX/window.innerWidth - 0.5;
+              mouse[1] = -(e.clientY/window.innerHeight - 0.5);
+          }, {passive:true});
 
-        const scene = new THREE.Scene();
-        const camera = new THREE.OrthographicCamera(-0.5, 0.5, 0.5, -0.5, 0.1, 10);
-        camera.position.z = 1;
+          let visible = true;
+          const heroH = () => window.innerHeight * 1.5;
+          const checkVis = () => { visible = ((lenis?lenis.scroll:window.scrollY)||window.scrollY) < heroH(); };
+          window.addEventListener('scroll', checkVis, {passive:true});
+          if(lenis) lenis.on('scroll', checkVis);
 
-        const uniforms = {
-          uTime: { value: 0 },
-          uResolution: { value: new THREE.Vector2() },
-          uColor: { value: new THREE.Color('#8b5cf6') },
-          uOpacity: { value: 0.5 },
-          uMouse: { value: new THREE.Vector2() },
-        };
+          (function loop(t){
+              requestAnimationFrame(loop);
+              if(!visible) return;
+              smooth[0] += (mouse[0]-smooth[0])*0.05;
+              smooth[1] += (mouse[1]-smooth[1])*0.05;
+              uniforms.uTime.value = t*0.001*CFG.speed;
+              uniforms.uMouse.value.set(smooth[0], smooth[1]);
+              renderer.render(scene, camera);
+          })(0);
 
-        const material = new THREE.ShaderMaterial({
-          vertexShader: vert,
-          fragmentShader: frag,
-          uniforms,
-          transparent: true,
-        });
-        scene.add(new THREE.Mesh(new THREE.PlaneGeometry(1, 1), material));
-
-        function resize() {
-          const w = window.innerWidth;
-          const h = window.innerHeight;
-          const dpr = Math.min(window.devicePixelRatio || 1, 2);
-          renderer.setPixelRatio(dpr);
-          renderer.setSize(w, h);
-          uniforms.uResolution.value.set(w * dpr, h * dpr);
-        }
-        resize();
-        window.addEventListener('resize', resize);
-
-        const mouse = [0, 0];
-        const smooth = [0, 0];
-        window.addEventListener('pointermove', (e) => {
-          mouse[0] = e.clientX / window.innerWidth - 0.5;
-          mouse[1] = -(e.clientY / window.innerHeight - 0.5);
-        }, { passive: true });
-
-        let visible = true;
-        const heroH = () => window.innerHeight * 1.5;
-        const checkVis = () => {
-          const scrollY = lenis ? lenis.scroll : window.scrollY;
-          visible = scrollY < heroH();
-        };
-        window.addEventListener('scroll', checkVis, { passive: true });
-        if (lenis) lenis.on('scroll', checkVis);
-
-        (function loop(t) {
-          requestAnimationFrame(loop);
-          if (!visible) return;
-          smooth[0] += (mouse[0] - smooth[0]) * 0.05;
-          smooth[1] += (mouse[1] - smooth[1]) * 0.05;
-          uniforms.uTime.value = t * 0.001;
-          uniforms.uMouse.value.set(smooth[0], smooth[1]);
-          renderer.render(scene, camera);
-        })(0);
-
-        if (window.gsap && window.ScrollTrigger) {
-          gsap.to('#bgGL', {
-            opacity: 0, ease: 'none',
-            scrollTrigger: {
-              trigger: '#accueil', start: 'center top', end: 'bottom top', scrub: true,
-            },
-          });
-        }
+          if(window.gsap && window.ScrollTrigger) {
+              gsap.to('#bgGL', {
+                  opacity: 0, ease: 'none',
+                  scrollTrigger: {
+                      trigger: '#accueil',
+                      start: 'center top',
+                      end: 'bottom top',
+                      scrub: true
+                  }
+              });
+          }
       })();
     </script>
   </body>
