@@ -58,6 +58,21 @@ const { title, description } = Astro.props;
         requestAnimationFrame(raf);
       }
 
+      // Anchor links with Lenis
+      document.querySelectorAll('a[href^="#"]').forEach((link) => {
+        link.addEventListener('click', (e) => {
+          e.preventDefault();
+          const target = document.querySelector(link.getAttribute('href'));
+          if (target) {
+            if (lenis) {
+              lenis.scrollTo(target);
+            } else {
+              target.scrollIntoView({ behavior: 'smooth' });
+            }
+          }
+        });
+      });
+
       // Header Scroll Effect
       const header = document.getElementById('header');
       window.addEventListener('scroll', () => {
@@ -152,34 +167,37 @@ const { title, description } = Astro.props;
           uniform vec3 uColor;
           uniform float uOpacity;
 
-          float ring(vec2 p, float radius, float spread) {
-            float d = length(p);
-            float t = mod(uTime * 1.2, 6.28);
-            float r = radius + t * 0.015;
-            float dist = abs(d - r);
-            return exp(-dist * dist * spread);
-          }
-
           void main() {
             vec2 p = (gl_FragCoord.xy - 0.5 * uResolution.xy) / min(uResolution.x, uResolution.y);
-            vec2 mp = uMouse * 0.25;
+            vec2 mp = uMouse * 0.2;
 
+            float R = 0.42;
             float total = 0.0;
+
             for (int i = 0; i < 4; i++) {
-              float fi = float(i);
-              vec2 offset = p + mp * (0.8 + fi * 0.25);
-              float ri = ring(offset, 0.15 + fi * 0.18, 14.0 + fi * 6.0);
-              total += ri * (0.6 - fi * 0.1);
+              float angle = float(i) * 3.14159 / 4.0 + 3.14159 / 8.0;
+              float c = cos(angle), s = sin(angle);
+
+              vec2 rp = p + mp * (0.6 + float(i) * 0.08);
+              vec2 lp = vec2(rp.x * c - rp.y * s, rp.x * s + rp.y * c);
+
+              float d = abs(length(lp) - R);
+              float line = exp(-d * d * 120.0);
+
+              float yNorm = lp.y / R;
+              float vertIntensity = 1.0 - yNorm * yNorm;
+              vertIntensity = max(0.0, vertIntensity);
+              vertIntensity = vertIntensity * vertIntensity;
+
+              total += line * vertIntensity * 0.6;
             }
 
-            float vignette = 1.0 - smoothstep(0.15, 0.9, length(p));
+            float vignette = 1.0 - smoothstep(0.3, 1.0, length(p));
             total *= vignette;
             total = clamp(total, 0.0, 1.0);
 
             float alpha = total * uOpacity;
-            vec3 color = uColor;
-
-            gl_FragColor = vec4(color, alpha);
+            gl_FragColor = vec4(uColor, alpha);
           }
         `;
 
