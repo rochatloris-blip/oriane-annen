@@ -169,30 +169,23 @@ const { title, description } = Astro.props;
 
           void main() {
             vec2 p = (gl_FragCoord.xy - 0.5 * uResolution.xy) / min(uResolution.x, uResolution.y);
-            vec2 mp = uMouse * 0.2;
+            vec2 mp = uMouse * 0.18;
 
-            float R = 0.42;
+            vec2 cp = p - mp;
+            float dist = length(cp);
+
             float total = 0.0;
+            float baseR = 0.22;
 
-            for (int i = 0; i < 4; i++) {
-              float angle = float(i) * 3.14159 / 4.0 + 3.14159 / 8.0;
-              float c = cos(angle), s = sin(angle);
-
-              vec2 rp = p + mp * (0.6 + float(i) * 0.08);
-              vec2 lp = vec2(rp.x * c - rp.y * s, rp.x * s + rp.y * c);
-
-              float d = abs(length(lp) - R);
-              float line = exp(-d * d * 120.0);
-
-              float yNorm = lp.y / R;
-              float vertIntensity = 1.0 - yNorm * yNorm;
-              vertIntensity = max(0.0, vertIntensity);
-              vertIntensity = vertIntensity * vertIntensity;
-
-              total += line * vertIntensity * 0.6;
+            for (int i = 0; i < 3; i++) {
+              float fi = float(i);
+              float R = baseR + fi * 0.17;
+              float d = abs(dist - R);
+              float ring = exp(-d * d * 250.0);
+              total += ring * (1.0 - fi * 0.15);
             }
 
-            float vignette = 1.0 - smoothstep(0.3, 1.0, length(p));
+            float vignette = 1.0 - smoothstep(0.6, 1.1, dist);
             total *= vignette;
             total = clamp(total, 0.0, 1.0);
 
@@ -219,7 +212,7 @@ const { title, description } = Astro.props;
           uTime: { value: 0 },
           uResolution: { value: new THREE.Vector2() },
           uColor: { value: new THREE.Color('#8b5cf6') },
-          uOpacity: { value: 0.35 },
+          uOpacity: { value: 0.5 },
           uMouse: { value: new THREE.Vector2() },
         };
 
