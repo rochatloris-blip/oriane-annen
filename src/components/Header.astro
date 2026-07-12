@@ -28,7 +28,7 @@
     </button>
   </div>
 
-  <div id="mobile-menu" class="fixed inset-0 bg-bg/95 backdrop-blur-xl z-40 flex flex-col items-center justify-center gap-8 md:hidden translate-y-[-100%] opacity-0 transition-all duration-500">
+  <div id="mobile-menu" class="fixed inset-0 bg-bg/95 backdrop-blur-xl z-40 flex flex-col items-center justify-center gap-8 md:hidden opacity-0 pointer-events-none transition-all duration-500">
     <a href="#accueil" class="text-2xl text-gray-300 hover:text-white transition-colors font-medium">Accueil</a>
     <a href="#services" class="text-2xl text-gray-300 hover:text-white transition-colors font-medium">Services</a>
     <a href="#parcours" class="text-2xl text-gray-300 hover:text-white transition-colors font-medium">Mon Parcours</a>
@@ -47,14 +47,14 @@
     const isOpen = mobileMenu.classList.contains('open');
     if (isOpen) {
       mobileMenu.classList.remove('open');
-      mobileMenu.style.transform = 'translateY(-100%)';
       mobileMenu.style.opacity = '0';
+      mobileMenu.style.pointerEvents = 'none';
       openIcon?.classList.remove('hidden');
       closeIcon?.classList.add('hidden');
     } else {
       mobileMenu.classList.add('open');
-      mobileMenu.style.transform = 'translateY(0)';
       mobileMenu.style.opacity = '1';
+      mobileMenu.style.pointerEvents = 'auto';
       openIcon?.classList.add('hidden');
       closeIcon?.classList.remove('hidden');
     }
