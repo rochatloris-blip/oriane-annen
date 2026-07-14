@@ -79,12 +79,6 @@
                 body: JSON.stringify(data),
               });
 
-              fetch('https://automate.hemonia.uk/webhook/oriane-contact', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data),
-              });
-
               if (res.ok) {
                 form.reset();
                 btn.innerHTML = 'Message envoyé ✓';

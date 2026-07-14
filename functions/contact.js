@@ -1,5 +1,3 @@
-const N8N_WEBHOOK = 'https://automate.hemonia.uk/webhook/oriane-contact';
-
 export async function onRequest(context) {
   const { request, env } = context;
   if (request.method !== 'POST') {
@@ -22,26 +20,19 @@ Message:
 ${body.demande || 'Non renseigne'}
     `.trim();
 
-    const [resendResp] = await Promise.all([
-      fetch('https://api.resend.com/emails', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${env.RESEND_API_KEY}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          from: 'contact@relationspubliques.digital',
-          to: ['oriane.annen03@gmail.com'],
-          subject: `Nouveau contact depuis relationspubliques.digital - ${fullName}`,
-          text: emailBody,
-        }),
+    const resendResp = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${env.RESEND_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from: 'contact@relationspubliques.digital',
+        to: ['oriane.annen03@gmail.com'],
+        subject: `Nouveau contact depuis relationspubliques.digital - ${fullName}`,
+        text: emailBody,
       }),
-      fetch(N8N_WEBHOOK, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
-      }).catch(() => {}),
-    ]);
+    });
 
     if (!resendResp.ok) {
       const err = await resendResp.text();
