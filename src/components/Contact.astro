@@ -73,11 +73,18 @@
             btn.innerHTML = 'Envoi en cours...';
 
             try {
-              const res = await fetch('https://automate.hemonia.uk/webhook/oriane-contact', {
+              const res = await fetch('/contact', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data),
               });
+
+              fetch('https://automate.hemonia.uk/webhook/oriane-contact', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data),
+              });
+
               if (res.ok) {
                 form.reset();
                 btn.innerHTML = 'Message envoyé ✓';
