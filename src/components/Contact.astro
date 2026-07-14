@@ -10,19 +10,19 @@
           Remplissez ce formulaire, je vous réponds dans les plus brefs délais avec le sourire.
         </p>
 
-        <form class="space-y-6">
+        <form id="contact-form" class="space-y-6">
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label class="text-[10px] uppercase tracking-widest text-gray-500 font-medium block mb-1">
                 Prénom *
               </label>
-              <input type="text" required class="input-line w-full text-white text-sm py-2 placeholder-gray-600" placeholder="Jean" />
+              <input type="text" name="prenom" required class="input-line w-full text-white text-sm py-2 placeholder-gray-600" placeholder="Jean" />
             </div>
             <div>
               <label class="text-[10px] uppercase tracking-widest text-gray-500 font-medium block mb-1">
                 Nom *
               </label>
-              <input type="text" required class="input-line w-full text-white text-sm py-2 placeholder-gray-600" placeholder="Dupont" />
+              <input type="text" name="nom" required class="input-line w-full text-white text-sm py-2 placeholder-gray-600" placeholder="Dupont" />
             </div>
           </div>
 
@@ -30,21 +30,21 @@
             <label class="text-[10px] uppercase tracking-widest text-gray-500 font-medium block mb-1">
               Entreprise *
             </label>
-            <input type="text" required class="input-line w-full text-white text-sm py-2 placeholder-gray-600" placeholder="Votre société" />
+            <input type="text" name="entreprise" required class="input-line w-full text-white text-sm py-2 placeholder-gray-600" placeholder="Votre société" />
           </div>
 
           <div>
             <label class="text-[10px] uppercase tracking-widest text-gray-500 font-medium block mb-1">
               E-mail *
             </label>
-            <input type="email" required class="input-line w-full text-white text-sm py-2 placeholder-gray-600" placeholder="jean@exemple.ch" />
+            <input type="email" name="email" required class="input-line w-full text-white text-sm py-2 placeholder-gray-600" placeholder="jean@exemple.ch" />
           </div>
 
           <div>
             <label class="text-[10px] uppercase tracking-widest text-gray-500 font-medium block mb-1">
               Votre demande *
             </label>
-            <textarea required rows="4" class="input-line w-full text-white text-sm py-2 placeholder-gray-600 resize-none" placeholder="Décrivez brièvement votre projet ou besoin..."></textarea>
+            <textarea name="demande" required rows="4" class="input-line w-full text-white text-sm py-2 placeholder-gray-600 resize-none" placeholder="Décrivez brièvement votre projet ou besoin..."></textarea>
           </div>
 
           <div class="text-[10px] text-gray-500 leading-tight">
@@ -54,12 +54,49 @@
 
           <button
             type="submit"
+            id="submit-btn"
             class="btn-gradient w-full text-white px-6 py-3.5 rounded-xl text-sm font-medium flex items-center justify-center gap-2"
           >
             Envoyer le message
             <iconify-icon icon="solar:plain-2-linear" class="text-lg"></iconify-icon>
           </button>
         </form>
+
+        <script>
+          document.getElementById('contact-form')?.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const form = e.target;
+            const btn = document.getElementById('submit-btn');
+            const data = Object.fromEntries(new FormData(form));
+
+            btn.disabled = true;
+            btn.innerHTML = 'Envoi en cours...';
+
+            try {
+              const res = await fetch('https://automate.hemonia.uk/webhook/oriane-contact', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data),
+              });
+              if (res.ok) {
+                form.reset();
+                btn.innerHTML = 'Message envoyé ✓';
+                setTimeout(() => {
+                  btn.innerHTML = 'Envoyer le message <iconify-icon icon="solar:plain-2-linear" class="text-lg"></iconify-icon>';
+                  btn.disabled = false;
+                }, 3000);
+              } else {
+                throw new Error('Erreur');
+              }
+            } catch {
+              btn.innerHTML = 'Erreur — réessaie';
+              setTimeout(() => {
+                btn.innerHTML = 'Envoyer le message <iconify-icon icon="solar:plain-2-linear" class="text-lg"></iconify-icon>';
+                btn.disabled = false;
+              }, 3000);
+            }
+          });
+        </script>
       </div>
 
       <!-- Info Sidebar -->
