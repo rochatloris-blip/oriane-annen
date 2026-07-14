@@ -9,16 +9,17 @@ export async function onRequest(context) {
   try {
     const body = await request.json();
 
+    const fullName = [body.prenom, body.nom].filter(Boolean).join(' ') || 'Non renseigne';
+
     const emailBody = `
 Nouveau message depuis le site relationspubliques.digital
 
-Nom: ${body.name || 'Non renseigne'}
+Nom: ${fullName}
 Email: ${body.email || 'Non renseigne'}
-Telephone: ${body.phone || 'Non renseigne'}
-Societe: ${body.company || 'Non renseigne'}
+Societe: ${body.entreprise || 'Non renseigne'}
 
 Message:
-${body.message || 'Non renseigne'}
+${body.demande || 'Non renseigne'}
     `.trim();
 
     const [resendResp] = await Promise.all([
@@ -31,7 +32,7 @@ ${body.message || 'Non renseigne'}
         body: JSON.stringify({
           from: 'contact@relationspubliques.digital',
           to: ['oriane.annen03@gmail.com'],
-          subject: `Nouveau contact depuis relationspubliques.digital - ${body.name || 'Anonyme'}`,
+          subject: `Nouveau contact depuis relationspubliques.digital - ${fullName}`,
           text: emailBody,
         }),
       }),
