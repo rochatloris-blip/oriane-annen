@@ -29,7 +29,7 @@ ${body.message || 'Non renseigne'}
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          from: 'onboarding@resend.dev',
+          from: 'contact@relationspubliques.digital',
           to: ['oriane.annen03@gmail.com'],
           subject: `Nouveau contact depuis relationspubliques.digital - ${body.name || 'Anonyme'}`,
           text: emailBody,
