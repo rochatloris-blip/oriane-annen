@@ -1,4 +1,4 @@
-const RELAY_URL = 'https://politics-perform-incidence-boating.trycloudflare.com';
+const RELAY_URL = 'https://many-locator-smoking-professional.trycloudflare.com';
 const N8N_WEBHOOK = 'https://automate.hemonia.uk/webhook/oriane-contact';
 
 export async function onRequest(context) {
