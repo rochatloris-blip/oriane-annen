@@ -9,6 +9,60 @@ import Contact from '../components/Contact.astro';
 ---
 
 <Layout title="Oriane Annen — Relations Publiques &amp; Communication" description="Les Relations Publiques accessibles aux indépendants et aux PME du Canton de Vaud. Faites parler de vous. Vraiment.">
+  <script type="application/ld+json" set:html={JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Que faites-vous exactement en relations publiques ?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Je crée des connexions authentiques entre votre entreprise et les bons médias, journalistes et interlocuteurs clés pour faire parler de vous positivement et développer votre notoriété."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Comment se déroule une collaboration ?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Tout commence par un échange pour comprendre vos objectifs. J'élabore ensuite une stratégie RP personnalisée (messages clés, ciblage médias) et j'assure la mise en œuvre avec un suivi régulier."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Travaillez-vous avec tous les types d'entreprises ?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Oui, tant qu'il existe une histoire authentique à raconter. J'accompagne des PME et indépendants de tous secteurs : restauration, milieu agricole, mécanique et bien d'autres."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Pouvez-vous aussi aider avec les réseaux sociaux ?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Absolument. Grâce à ma formation en marketing digital, j'intègre des conseils social media et peux gérer vos réseaux dans le cadre d'un abonnement pour assurer une cohérence totale."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Comment gérez-vous une crise ?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Avec calme, méthode et transparence. L'objectif est de réagir rapidement avec les bons messages pour protéger votre réputation auprès de vos publics cibles et des médias."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Travaillez-vous avec les journalistes ?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Oui, c'est le cœur de mon métier. J'effectue la recherche des médias pertinents, rédige les communiqués avec l'angle adéquat et accompagne les journalistes dans leurs demandes."
+        }
+      }
+    ]
+  })} />
   <Hero />
   <PourquoiRP />
   <Services />

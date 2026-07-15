@@ -107,3 +107,77 @@ header.scrolled {
 iconify-icon {
   display: inline-flex;
 }
+
+/* --- Badge Nouveau pulse --- */
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.7; transform: scale(1.35); }
+}
+@keyframes pulse-halo {
+  0%, 100% { box-shadow: 0 0 10px rgba(139,92,246,0.2); }
+  50% { box-shadow: 0 0 25px rgba(139,92,246,0.5), 0 0 50px rgba(139,92,246,0.15); }
+}
+.badge-pulse-dot {
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+.badge-pulse-halo {
+  animation: pulse-halo 2s ease-in-out infinite;
+}
+
+/* --- Carte Abonnements breathe --- */
+@keyframes breathe-border {
+  0%, 100% { border-color: rgba(139,92,246,0.2); box-shadow: 0 0 20px rgba(139,92,246,0.05), 0 8px 30px rgba(139,92,246,0.08); }
+  50% { border-color: rgba(139,92,246,0.5); box-shadow: 0 0 40px rgba(139,92,246,0.12), 0 8px 40px rgba(139,92,246,0.15); }
+}
+.breathe-border {
+  animation: breathe-border 3s ease-in-out infinite;
+}
+.card-featured {
+  transform: translateY(-4px);
+}
+
+/* --- Typewriter --- */
+.typewriter-container {
+  min-height: 7rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+@media (min-width: 768px) {
+  .typewriter-container {
+    min-height: 8rem;
+  }
+}
+.typewriter-line {
+  font-family: 'Courier New', Courier, monospace;
+}
+.typewriter-cursor {
+  font-family: 'Courier New', Courier, monospace;
+  animation: blink-cursor 0.8s step-end infinite;
+  color: var(--accent);
+  margin-left: 2px;
+}
+@keyframes blink-cursor {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+/* --- Mobile spacing reduction --- */
+@media (max-width: 767px) {
+  .section-spacing {
+    padding-top: 2.4rem;
+    padding-bottom: 2.4rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .badge-pulse-dot,
+  .badge-pulse-halo,
+  .breathe-border {
+    animation: none;
+  }
+  .typewriter-cursor {
+    display: none;
+  }
+}

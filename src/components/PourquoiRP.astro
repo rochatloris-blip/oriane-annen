@@ -1,4 +1,4 @@
-<section class="py-24 px-6 relative z-10">
+<section class="pt-12 pb-24 md:pt-14 md:pb-24 section-spacing px-6 relative z-10">
   <div class="max-w-6xl mx-auto">
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
       <div class="reveal flex flex-col gap-8 order-2 lg:order-1">
@@ -10,8 +10,7 @@
         </h2>
         <p class="text-gray-400 text-base leading-relaxed">
           Quand un journal, une radio ou un podcast parle de vous, ce n'est plus vous qui dites que
-          vous êtes bon — c'est un journaliste. Cette validation externe crée une crédibilité que la
-          publicité traditionnelle ne peut tout simplement pas acheter.
+          vous êtes bon — c'est un leader d'opinion, un journaliste, un média.
         </p>
 
         <div class="glass-card rounded-2xl p-6 border-l-2 border-l-violet-500 relative overflow-hidden">
@@ -40,13 +39,69 @@
             icon="solar:quote-left-linear"
             class="text-4xl text-violet-500/40 mx-auto mb-6 block relative z-10"
           ></iconify-icon>
-          <p class="text-2xl md:text-3xl font-medium tracking-tight text-white leading-snug relative z-10">
-            "Les réseaux vous rendent visible.<br />
-            La pub vous rend connu.<br />
-            <span class="text-gradient"> Les médias vous rendent crédible. </span>"
-          </p>
+          <div id="typewriter-root" class="text-2xl md:text-3xl font-medium tracking-tight text-white leading-snug relative z-10 typewriter-container">
+            <p class="text-gradient typewriter-line">"Les réseaux vous rendent visible.</p>
+            <p class="text-gradient typewriter-line">La pub vous rend connu.</p>
+            <p class="text-gradient typewriter-line">Les médias vous rendent crédible."</p>
+          </div>
         </div>
       </div>
     </div>
   </div>
 </section>
+
+<script>
+  (function() {
+    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const root = document.getElementById('typewriter-root');
+    if (!root || prefersReduced) return;
+
+    const texts = [
+      'Les réseaux vous rendent visible.',
+      'La pub vous rend connu.',
+      'Les médias vous rendent crédible.',
+    ];
+
+    let lineIdx = 0;
+    let charIdx = 0;
+    let currentP = null;
+    const cursor = document.createElement('span');
+    cursor.className = 'typewriter-cursor';
+    cursor.textContent = '|';
+
+    function type() {
+      if (lineIdx >= texts.length) return;
+
+      if (charIdx === 0) {
+        if (currentP) root.removeChild(currentP);
+        currentP = document.createElement('p');
+        currentP.className = 'typewriter-line text-gradient';
+        root.appendChild(currentP);
+      }
+
+      if (charIdx < texts[lineIdx].length) {
+        currentP.textContent += texts[lineIdx][charIdx++];
+        setTimeout(type, 45);
+      } else {
+        lineIdx++;
+        charIdx = 0;
+        if (lineIdx < texts.length) {
+          setTimeout(type, 200);
+        }
+      }
+    }
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          root.innerHTML = '';
+          root.appendChild(cursor);
+          type();
+          observer.disconnect();
+        }
+      });
+    }, { threshold: 0.5 });
+
+    observer.observe(root);
+  })();
+</script>
