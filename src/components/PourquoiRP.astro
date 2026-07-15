@@ -70,13 +70,12 @@
     cursor.textContent = '|';
 
     function type() {
-      if (lineIdx >= texts.length) return;
+      if (lineIdx >= texts.length) { cursor.style.display = 'none'; return; }
 
       if (charIdx === 0) {
-        if (currentP) root.removeChild(currentP);
         currentP = document.createElement('p');
         currentP.className = 'typewriter-line text-gradient';
-        root.appendChild(currentP);
+        root.insertBefore(currentP, cursor);
       }
 
       if (charIdx < texts[lineIdx].length) {
