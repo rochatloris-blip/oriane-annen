@@ -69,17 +69,25 @@
     cursor.className = 'typewriter-cursor';
     cursor.textContent = '|';
 
+    function moveCursorTo(p) {
+      p.appendChild(cursor);
+    }
+
     function type() {
-      if (lineIdx >= texts.length) { cursor.style.display = 'none'; return; }
+      if (lineIdx >= texts.length) {
+        if (cursor.parentNode) cursor.parentNode.removeChild(cursor);
+        return;
+      }
 
       if (charIdx === 0) {
         currentP = document.createElement('p');
         currentP.className = 'typewriter-line text-gradient';
-        root.insertBefore(currentP, cursor);
+        root.appendChild(currentP);
+        moveCursorTo(currentP);
       }
 
       if (charIdx < texts[lineIdx].length) {
-        currentP.textContent += texts[lineIdx][charIdx++];
+        cursor.insertAdjacentText('beforebegin', texts[lineIdx][charIdx++]);
         setTimeout(type, 45);
       } else {
         lineIdx++;
@@ -94,7 +102,6 @@
       entries.forEach(entry => {
         if (entry.isIntersecting) {
           root.innerHTML = '';
-          root.appendChild(cursor);
           type();
           observer.disconnect();
         }
